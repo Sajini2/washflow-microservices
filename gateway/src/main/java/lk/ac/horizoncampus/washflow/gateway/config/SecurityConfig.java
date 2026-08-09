@@ -1,5 +1,6 @@
 package lk.ac.horizoncampus.washflow.gateway.config;
 
+import lk.ac.horizoncampus.washflow.gateway.filter.RateLimitFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,7 +14,10 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, JwtAuthenticationFilter jwtFilter) {
+    public SecurityWebFilterChain securityWebFilterChain(
+            ServerHttpSecurity http,
+            RateLimitFilter rateLimitFilter,
+            JwtAuthenticationFilter jwtFilter) {
         return http
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
@@ -25,6 +29,7 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         .anyExchange().authenticated()
                 )
+                .addFilterBefore(rateLimitFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
     }
