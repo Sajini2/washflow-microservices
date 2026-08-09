@@ -1,3 +1,56 @@
 version: '3.8'
 
-# Services will be added in a later step
+services:
+  user-auth-service:
+    build:
+      context: ./user-auth-service
+      dockerfile: Dockerfile
+    container_name: washflow-user-auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - USER_AUTH_SERVICE_API_KEY=${USER_AUTH_SERVICE_API_KEY}
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: washflow-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - USER_AUTH_SERVICE_API_KEY=${USER_AUTH_SERVICE_API_KEY}
+      - USER_AUTH_SERVICE_URL=http://user-auth-service:8081
+    depends_on:
+      user-auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # Placeholder for teammate services:
+  # laundry-service:
+  #   build: ./laundry-service
+  #   ports:
+  #     - "8082:8082"
+
+  # order-pickup-service:
+  #   build: ./order-pickup-service
+  #   ports:
+  #     - "8083:8083"
+
+  # client:
+  #   build: ./client
+  #   ports:
+  #     - "5173:5173"
