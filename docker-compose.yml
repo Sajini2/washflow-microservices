@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  gateway:
+    build:
+      context: ./gateway
+    container_name: washflow-gateway
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+
+  user-auth-service:
+    build:
+      context: ./user-auth-service
+    container_name: washflow-user-auth-service
+    ports:
+      - "8082:8082"
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+
+  laundry-service:
+    build:
+      context: ./laundry-service
+    container_name: washflow-laundry-service
+    ports:
+      - "8083:8083"
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+
+  order-pickup-service:
+    build:
+      context: ./order-pickup-service
+    container_name: washflow-order-pickup-service
+    ports:
+      - "8084:8084"
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+
+  client:
+    build:
+      context: ./client
+    container_name: washflow-client
+    ports:
+      - "3000:3000"
