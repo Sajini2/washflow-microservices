@@ -11,21 +11,37 @@ spring:
           uri: http://localhost:8081
           predicates:
             - Path=/auth/**
+          filters:
+            - AddRequestHeader=X-API-KEY, ${internal.user-auth-service-api-key:washflow-user-auth-dev-key-2026}
 
         - id: user-auth-service-users
           uri: http://localhost:8081
           predicates:
             - Path=/users/**
+          filters:
+            - AddRequestHeader=X-API-KEY, ${internal.user-auth-service-api-key:washflow-user-auth-dev-key-2026}
 
         - id: laundry-service
           uri: http://localhost:8082
           predicates:
             - Path=/services/**
+          filters:
+            - AddRequestHeader=X-API-KEY, washflow-laundry-dev-key-2026
 
         - id: order-pickup-service
           uri: http://localhost:8083
           predicates:
             - Path=/orders/**
+          filters:
+            - AddRequestHeader=X-API-KEY, washflow-order-pickup-dev-key-2026
+
+jwt:
+  secret: ${JWT_SECRET:washflow-jwt-super-secret-key-2026-washflow-microservices-coursework-dev-secret-key-32bytes}
+  expiration-ms: 3600000
+
+internal:
+  user-auth-service-url: http://localhost:8081
+  user-auth-service-api-key: ${USER_AUTH_SERVICE_API_KEY:washflow-user-auth-dev-key-2026}
 
 management:
   endpoints:
