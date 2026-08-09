@@ -53,6 +53,9 @@ public class JwtAuthenticationFilter implements WebFilter {
     }
 
     private boolean isPublicPath(String path, String method) {
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            return true;
+        }
         if ("/oauth/token".equals(path) && "POST".equalsIgnoreCase(method)) {
             return true;
         }

@@ -19,6 +19,7 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
                 .authorizeExchange(exchanges -> exchanges
+                        .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .pathMatchers(HttpMethod.POST, "/oauth/token").permitAll()
                         .pathMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .pathMatchers(HttpMethod.GET, "/actuator/health").permitAll()
