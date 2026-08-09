@@ -1,0 +1,14 @@
+# Java / Maven build artifacts
+target/
+
+# Environment configuration
+.env
+.env.*
+!.env.example
+
+# Node dependencies
+node_modules/
+
+# IDE and OS files
+.idea/
+.DS_Store
