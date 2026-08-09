@@ -17,7 +17,6 @@ import java.time.Instant;
 public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     private static final String API_KEY_HEADER = "X-API-KEY";
-    private static final String EXEMPT_ENDPOINT = "/health";
 
     private final String expectedApiKey;
 
@@ -33,7 +32,13 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         String method = request.getMethod();
 
         // Exempt GET /health from API key check
-        if (EXEMPT_ENDPOINT.equalsIgnoreCase(path) && "GET".equalsIgnoreCase(method)) {
+        if ("/health".equalsIgnoreCase(path) && "GET".equalsIgnoreCase(method)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // Exempt Swagger UI and OpenAPI documentation endpoints
+        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }
