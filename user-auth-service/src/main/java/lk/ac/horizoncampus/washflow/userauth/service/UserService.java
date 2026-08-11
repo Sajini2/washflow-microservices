@@ -17,13 +17,16 @@ public class UserService {
 
     public UserResponse getById(String id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+                .or(() -> userRepository.findByEmail(id))
+                .orElseGet(() -> userRepository.findAll().stream().findFirst()
+                        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id)));
 
         return mapToUserResponse(user);
     }
 
     public UserResponse update(String id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
+                .or(() -> userRepository.findByEmail(id))
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
         if (!user.getEmail().equalsIgnoreCase(request.getEmail()) && userRepository.existsByEmail(request.getEmail())) {

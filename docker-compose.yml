@@ -1,4 +1,16 @@
 services:
+  mongodb:
+    image: mongo:7.0
+    container_name: washflow-mongodb
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --eval 'db.runCommand({ping: 1})' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
   user-auth-service:
     build:
       context: ./user-auth-service
@@ -8,7 +20,12 @@ services:
       - "8081:8081"
     environment:
       - MONGODB_URI=${MONGODB_URI}
+      - SPRING_MONGODB_URI=${MONGODB_URI}
+      - SPRING_DATA_MONGODB_URI=${MONGODB_URI}
       - USER_AUTH_SERVICE_API_KEY=${USER_AUTH_SERVICE_API_KEY}
+    depends_on:
+      mongodb:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/health || exit 1"]
       interval: 10s
@@ -37,18 +54,5 @@ services:
       retries: 5
       start_period: 15s
 
-  # Placeholder for teammate services:
-  # laundry-service:
-  #   build: ./laundry-service
-  #   ports:
-  #     - "8082:8082"
-
-  # order-pickup-service:
-  #   build: ./order-pickup-service
-  #   ports:
-  #     - "8083:8083"
-
-  # client:
-  #   build: ./client
-  #   ports:
-  #     - "5173:5173"
+volumes:
+  mongodb_data:
