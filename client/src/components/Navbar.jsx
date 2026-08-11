@@ -21,6 +21,7 @@ const Navbar = () => {
         {isAuthenticated && (
           <div className="navbar-nav-links">
             <Link to="/services" className="nav-link">Services</Link>
+            <Link to="/orders" className="nav-link">My Orders</Link>
           </div>
         )}
 

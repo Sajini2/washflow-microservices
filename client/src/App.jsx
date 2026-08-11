@@ -7,6 +7,9 @@ import LoginPage from './auth/LoginPage';
 import RegisterPage from './auth/RegisterPage';
 import ProfilePage from './auth/ProfilePage';
 import ServicesPage from './services/ServicesPage';
+import CreateOrderPage from './orders/CreateOrderPage';
+import OrdersListPage from './orders/OrdersListPage';
+import OrderTrackingPage from './orders/OrderTrackingPage';
 import './App.css';
 
 // Home route redirect component
@@ -17,7 +20,7 @@ const HomeRedirect = () => {
     return <div className="loading-container">Loading...</div>;
   }
 
-  return isAuthenticated ? <Navigate to="/profile" replace /> : <Navigate to="/login" replace />;
+  return isAuthenticated ? <Navigate to="/orders" replace /> : <Navigate to="/login" replace />;
 };
 
 function App() {
@@ -44,6 +47,30 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ServicesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/orders"
+                element={
+                  <ProtectedRoute>
+                    <OrdersListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/orders/new"
+                element={
+                  <ProtectedRoute>
+                    <CreateOrderPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/orders/:orderId"
+                element={
+                  <ProtectedRoute>
+                    <OrderTrackingPage />
                   </ProtectedRoute>
                 }
               />
