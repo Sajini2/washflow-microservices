@@ -6,6 +6,7 @@ import Navbar from './components/Navbar';
 import LoginPage from './auth/LoginPage';
 import RegisterPage from './auth/RegisterPage';
 import ProfilePage from './auth/ProfilePage';
+import ServicesPage from './services/ServicesPage';
 import './App.css';
 
 // Home route redirect component
@@ -35,6 +36,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/services"
+                element={
+                  <ProtectedRoute>
+                    <ServicesPage />
                   </ProtectedRoute>
                 }
               />
