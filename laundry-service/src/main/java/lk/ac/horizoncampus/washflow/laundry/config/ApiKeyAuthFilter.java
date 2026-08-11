@@ -38,6 +38,12 @@ public class ApiKeyAuthFilter implements Filter {
             return;
         }
 
+        // Exempt Swagger UI and OpenAPI documentation endpoints
+        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String providedKey = request.getHeader(API_KEY_HEADER);
 
         if (providedKey == null || !providedKey.equals(configuredApiKey)) {
