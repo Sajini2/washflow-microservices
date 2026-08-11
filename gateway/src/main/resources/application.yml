@@ -43,7 +43,7 @@ spring:
           predicates:
             - Path=/services/**
           filters:
-            - AddRequestHeader=X-API-KEY, washflow-laundry-dev-key-2026
+            - AddRequestHeader=X-API-KEY, ${internal.laundry-service-api-key:washflow-laundry-dev-key-2026}
 
         - id: order-pickup-service
           uri: ${ORDER_PICKUP_SERVICE_URL:http://localhost:8083}
@@ -59,6 +59,8 @@ jwt:
 internal:
   user-auth-service-url: ${USER_AUTH_SERVICE_URL:http://localhost:8081}
   user-auth-service-api-key: ${USER_AUTH_SERVICE_API_KEY:washflow-user-auth-dev-key-2026}
+  laundry-service-url: ${LAUNDRY_SERVICE_URL:http://localhost:8082}
+  laundry-service-api-key: ${LAUNDRY_SERVICE_API_KEY:washflow-laundry-dev-key-2026}
 
 management:
   endpoints:

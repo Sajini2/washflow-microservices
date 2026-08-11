@@ -90,7 +90,7 @@ Swagger UI is available for each microservice when running locally. The Gateway 
 | Service                  | Swagger UI URL                              |
 |--------------------------|---------------------------------------------|
 | User & Auth Service      | http://localhost:8081/swagger-ui.html        |
-| Laundry Service          | *(to be filled by Laundry Service owner)*    |
+| Laundry Service          | http://localhost:8082/swagger-ui.html        |
 | Order & Pickup Service   | *(to be filled by Order & Pickup Service owner)* |
 
 # API Key Header Format
@@ -108,7 +108,7 @@ Each microservice enforces direct request protection using its own unique API ke
 | Service                        | Environment Variable            | `application.properties` Key |
 |--------------------------------|---------------------------------|-------------------------------|
 | User & Auth Service            | `USER_AUTH_SERVICE_API_KEY`     | `service.api-key`             |
-| Laundry Service                | `LAUNDRY_SERVICE_API_KEY`       | *(to be filled)*              |
+| Laundry Service                | `LAUNDRY_SERVICE_API_KEY`       | `service.api-key`             |
 | Order & Pickup Service         | `ORDER_PICKUP_SERVICE_API_KEY`  | *(to be filled)*              |
 
 **Example — testing User & Auth Service directly (bypassing Gateway):**

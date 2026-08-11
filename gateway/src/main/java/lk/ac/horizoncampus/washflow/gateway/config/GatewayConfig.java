@@ -18,8 +18,14 @@ public class GatewayConfig {
     @Value("${internal.laundry-service-url:http://localhost:8082}")
     private String laundryServiceUrl;
 
+    @Value("${internal.laundry-service-api-key:washflow-laundry-dev-key-2026}")
+    private String laundryApiKey;
+
     @Value("${internal.order-pickup-service-url:http://localhost:8083}")
     private String orderPickupServiceUrl;
+
+    @Value("${internal.order-pickup-service-api-key:washflow-order-pickup-dev-key-2026}")
+    private String orderPickupApiKey;
 
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
@@ -31,10 +37,10 @@ public class GatewayConfig {
                         .filters(f -> f.addRequestHeader("X-API-KEY", userAuthApiKey))
                         .uri(userAuthServiceUrl))
                 .route("laundry-service", r -> r.path("/services/**")
-                        .filters(f -> f.addRequestHeader("X-API-KEY", "washflow-laundry-dev-key-2026"))
+                        .filters(f -> f.addRequestHeader("X-API-KEY", laundryApiKey))
                         .uri(laundryServiceUrl))
                 .route("order-pickup-service", r -> r.path("/orders/**")
-                        .filters(f -> f.addRequestHeader("X-API-KEY", "washflow-order-pickup-dev-key-2026"))
+                        .filters(f -> f.addRequestHeader("X-API-KEY", orderPickupApiKey))
                         .uri(orderPickupServiceUrl))
                 .build();
     }
