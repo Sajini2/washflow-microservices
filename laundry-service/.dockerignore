@@ -1,5 +1,8 @@
 target/
-.git/
+.idea/
+*.iml
+.git
+.env
 .mvn/
 mvnw
 mvnw.cmd
