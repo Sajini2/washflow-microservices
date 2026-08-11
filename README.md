@@ -20,7 +20,7 @@ All client authentication is handled via the API Gateway — microservices are n
 | Student ID       | Role                    | Owned Components                                  |
 |------------------|-------------------------|---------------------------------------------------|
 | ITBIN-2313-0043  | Member / Gateway Lead   | User & Authentication Service + API Gateway       |
-| *(teammate)*     | *(to be filled)*        | Laundry Service                                   |
+| ITBIN-2313-0064  | Member                  | Laundry Service                                   |
 | *(teammate)*     | *(to be filled)*        | Order & Pickup Service                            |
 | *(teammate)*     | *(to be filled)*        | Client Application                                |
 
@@ -73,19 +73,27 @@ docker compose up --build
 
 ## Laundry Service (ITBIN-2313-0064)
 
-Manages available laundry service types, pricing, and estimated processing times. Runs on port **8082**.
+Manages available laundry service types, pricing, and estimated processing times. Runs on port **8082** (base package `lk.ac.horizoncampus.washflow.laundry`).
 
 **Requirements before running:**
-- A `.env` file (or environment variables) must supply `MONGODB_URI` and `LAUNDRY_SERVICE_API_KEY`.
-- A live MongoDB Atlas connection is required. The `MONGODB_URI` must point to your Atlas cluster with database `washflow_catalog`.
+- A `.env` file inside `laundry-service/` (copied from `.env.example`) supplying `MONGODB_URI` and `SERVICE_API_KEY` (or `LAUNDRY_SERVICE_API_KEY`).
+- A live MongoDB Atlas connection (database: `washflow_catalog`).
 
-**Start the service locally:**
+**Option A — Run with Maven Wrapper:**
 
 ```powershell
-# PowerShell
-$env:MONGODB_URI="mongodb+srv://<user>:<pass>@cluster.mongodb.net/washflow_catalog"
-$env:LAUNDRY_SERVICE_API_KEY="washflow-laundry-dev-key-2026"
+cd laundry-service
+$env:MONGODB_URI="mongodb+srv://<username>:<password>@cluster.mongodb.net/washflow_catalog"
+$env:SERVICE_API_KEY="washflow-laundry-dev-key-2026"
 ./mvnw spring-boot:run
+```
+
+**Option B — Run with Docker (Standalone):**
+
+```bash
+cd laundry-service
+docker build -t laundry-service .
+docker run -p 8082:8082 --env-file .env laundry-service
 ```
 
 **Verify the service is running:**
@@ -97,11 +105,11 @@ curl http://localhost:8082/health
 
 **API Key Security:**
 
-All endpoints except `GET /health` require the `X-API-KEY` header. The key is loaded from the `LAUNDRY_SERVICE_API_KEY` environment variable. Swagger UI endpoints (`/swagger-ui`, `/v3/api-docs`) are also exempt.
+All endpoints except `GET /health` require the `X-API-KEY` header (`SERVICE_API_KEY`). Swagger UI endpoints (`/swagger-ui.html`, `/v3/api-docs`) are also exempt.
 
 | Header | Value |
 |---|---|
-| `X-API-KEY` | Value of `LAUNDRY_SERVICE_API_KEY` env var |
+| `X-API-KEY` | Value of `SERVICE_API_KEY` (or `LAUNDRY_SERVICE_API_KEY`) env var |
 
 - **Exempt endpoints:** `GET /health`, `/swagger-ui/**`, `/v3/api-docs/**` — no key required.
 - Missing or wrong key returns `401 Unauthorized` with JSON body `{"status":401,"message":"Missing or invalid API key","timestamp":"<ISO-8601>"}`.
@@ -121,6 +129,19 @@ curl http://localhost:8082/services \
 
 > *To be added by the Client Application owner.*
 
+# API Endpoints Summary
+
+### Laundry Service Endpoints (Port 8082)
+
+| Method | Endpoint | Description | Auth Required |
+|---|---|---|---|
+| `GET` | `/health` | Health check endpoint returning service status | None (Public) |
+| `GET` | `/services` | List all available laundry services and pricing | `X-API-KEY` |
+| `GET` | `/services/{id}` | Retrieve details of a specific laundry service by ID | `X-API-KEY` |
+| `POST` | `/services` | Create a new laundry service item | `X-API-KEY` |
+| `PUT` | `/services/{id}` | Update an existing laundry service item (partial update) | `X-API-KEY` |
+| `DELETE` | `/services/{id}` | Delete a laundry service item by ID | `X-API-KEY` |
+
 # Swagger UI URLs
 
 Swagger UI is available for each microservice when running locally. The Gateway itself does not expose Swagger — use the individual service URLs below.
@@ -133,7 +154,7 @@ Swagger UI is available for each microservice when running locally. The Gateway 
 
 # API Key Header Format
 
-Each microservice enforces direct request protection using its own unique API key. This is a **service-to-service layer**, separate from the JWT authentication layer in the Gateway.
+Each microservice enforces direct request protection using its own unique API key. This is a **service-to-service layer**, separate from the JWT authentication layer in the Gateway. Laundry Service enforces this verification via `ApiKeyAuthFilter`.
 
 **Header name:** `X-API-KEY`
 
@@ -146,7 +167,7 @@ Each microservice enforces direct request protection using its own unique API ke
 | Service                        | Environment Variable            | `application.properties` Key |
 |--------------------------------|---------------------------------|-------------------------------|
 | User & Auth Service            | `USER_AUTH_SERVICE_API_KEY`     | `service.api-key`             |
-| Laundry Service                | `LAUNDRY_SERVICE_API_KEY`       | `service.api-key`             |
+| Laundry Service                | `SERVICE_API_KEY`               | `service.api-key`             |
 | Order & Pickup Service         | `ORDER_PICKUP_SERVICE_API_KEY`  | *(to be filled)*              |
 
 **Example — testing User & Auth Service directly (bypassing Gateway):**

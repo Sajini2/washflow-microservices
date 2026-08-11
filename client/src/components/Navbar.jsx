@@ -18,13 +18,11 @@ const Navbar = () => {
           <span className="brand-icon">🧺</span> WashFlow
         </Link>
 
-        {/* TEAMMATE FEATURE PLACEHOLDER: Future Services and Orders links will go here */}
-        {/*
-        <div className="navbar-nav-links">
-          <Link to="/services">Services</Link>
-          <Link to="/orders">Orders</Link>
-        </div>
-        */}
+        {isAuthenticated && (
+          <div className="navbar-nav-links">
+            <Link to="/services" className="nav-link">Services</Link>
+          </div>
+        )}
 
         <div className="navbar-user-actions">
           {isAuthenticated ? (
