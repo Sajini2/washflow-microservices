@@ -71,9 +71,47 @@ curl http://localhost:8081/health
 docker compose up --build
 ```
 
-## Laundry Service
+## Laundry Service (ITBIN-2313-0064)
 
-> *To be added by the Laundry Service owner.*
+Manages available laundry service types, pricing, and estimated processing times. Runs on port **8082**.
+
+**Requirements before running:**
+- A `.env` file (or environment variables) must supply `MONGODB_URI` and `LAUNDRY_SERVICE_API_KEY`.
+- A live MongoDB Atlas connection is required. The `MONGODB_URI` must point to your Atlas cluster with database `washflow_catalog`.
+
+**Start the service locally:**
+
+```powershell
+# PowerShell
+$env:MONGODB_URI="mongodb+srv://<user>:<pass>@cluster.mongodb.net/washflow_catalog"
+$env:LAUNDRY_SERVICE_API_KEY="washflow-laundry-dev-key-2026"
+./mvnw spring-boot:run
+```
+
+**Verify the service is running:**
+
+```bash
+# Health check — no API key required
+curl http://localhost:8082/health
+```
+
+**API Key Security:**
+
+All endpoints except `GET /health` require the `X-API-KEY` header. The key is loaded from the `LAUNDRY_SERVICE_API_KEY` environment variable. Swagger UI endpoints (`/swagger-ui`, `/v3/api-docs`) are also exempt.
+
+| Header | Value |
+|---|---|
+| `X-API-KEY` | Value of `LAUNDRY_SERVICE_API_KEY` env var |
+
+- **Exempt endpoints:** `GET /health`, `/swagger-ui/**`, `/v3/api-docs/**` — no key required.
+- Missing or wrong key returns `401 Unauthorized` with JSON body `{"status":401,"message":"Missing or invalid API key","timestamp":"<ISO-8601>"}`.
+
+**Example — calling Laundry Service directly (bypassing Gateway):**
+
+```bash
+curl http://localhost:8082/services \
+  -H "X-API-KEY: washflow-laundry-dev-key-2026"
+```
 
 ## Order & Pickup Service
 

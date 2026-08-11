@@ -1,63 +1,58 @@
 package lk.ac.horizoncampus.washflow.laundry.config;
 
+import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Instant;
 
 @Component
-public class ApiKeyAuthFilter extends OncePerRequestFilter {
+public class ApiKeyAuthFilter implements Filter {
 
     private static final String API_KEY_HEADER = "X-API-KEY";
+    private static final String HEALTH_PATH    = "/health";
 
-    private final String expectedApiKey;
-
-    public ApiKeyAuthFilter(@Value("${service.api-key}") String expectedApiKey) {
-        this.expectedApiKey = expectedApiKey;
-    }
+    @Value("${service.api-key}")
+    private String configuredApiKey;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    public void doFilter(ServletRequest servletRequest,
+                         ServletResponse servletResponse,
+                         FilterChain chain) throws IOException, ServletException {
+
+        HttpServletRequest  request  = (HttpServletRequest)  servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         String path = request.getRequestURI();
-        String method = request.getMethod();
 
-        // Exempt GET /health from API key check
-        if ("/health".equalsIgnoreCase(path) && "GET".equalsIgnoreCase(method)) {
-            filterChain.doFilter(request, response);
+        // Exempt GET /health -- no API key required
+        if ("GET".equalsIgnoreCase(request.getMethod()) && HEALTH_PATH.equals(path)) {
+            chain.doFilter(request, response);
             return;
         }
 
-        // Exempt Swagger UI and OpenAPI documentation endpoints
-        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        String providedKey = request.getHeader(API_KEY_HEADER);
 
-        String apiKeyHeader = request.getHeader(API_KEY_HEADER);
+        if (providedKey == null || !providedKey.equals(configuredApiKey)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
 
-        if (apiKeyHeader == null || !apiKeyHeader.equals(expectedApiKey)) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-            String jsonResponse = String.format(
+            String body = String.format(
                     "{\"status\":401,\"message\":\"Missing or invalid API key\",\"timestamp\":\"%s\"}",
                     Instant.now().toString()
             );
-
-            response.getWriter().write(jsonResponse);
+            response.getWriter().write(body);
             return;
         }
 
-        filterChain.doFilter(request, response);
+        chain.doFilter(request, response);
     }
 }
