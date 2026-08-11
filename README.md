@@ -21,7 +21,7 @@ All client authentication is handled via the API Gateway — microservices are n
 |------------------|-------------------------|---------------------------------------------------|
 | ITBIN-2313-0043  | Member / Gateway Lead   | User & Authentication Service + API Gateway       |
 | ITBIN-2313-0064  | Member                  | Laundry Service                                   |
-| *(teammate)*     | *(to be filled)*        | Order & Pickup Service                            |
+| ITBIN-2313-0016  | Member                  | Order & Pickup Service                            |
 | *(teammate)*     | *(to be filled)*        | Client Application                                |
 
 # Branching Strategy
@@ -121,9 +121,55 @@ curl http://localhost:8082/services \
   -H "X-API-KEY: washflow-laundry-dev-key-2026"
 ```
 
-## Order & Pickup Service
+## Order & Pickup Service (ITBIN-2313-0016)
 
-> *To be added by the Order & Pickup Service owner.*
+Manages laundry orders, pickup scheduling, delivery details, and order status tracking. Runs on port **8083** (base package `lk.ac.horizoncampus.washflow.orderpickup`).
+
+**Requirements before running:**
+- A `.env` file inside `order-pickup-service/` (copied from `.env.example`) supplying `MONGODB_URI` and `SERVICE_API_KEY`.
+- A live MongoDB Atlas connection (database: `washflow_orders`).
+
+**Option A — Run with Maven Wrapper:**
+
+```powershell
+cd order-pickup-service
+$env:MONGODB_URI="mongodb+srv://<username>:<password>@cluster.mongodb.net/washflow_orders"
+$env:SERVICE_API_KEY="washflow-order-pickup-dev-key-2026"
+./mvnw spring-boot:run
+```
+
+**Option B — Run with Docker (Standalone):**
+
+```bash
+cd order-pickup-service
+docker build -t order-pickup-service .
+docker run -p 8083:8083 --env-file .env order-pickup-service
+```
+
+**Verify the service is running:**
+
+```bash
+# Health check — no API key required
+curl http://localhost:8083/health
+```
+
+**API Key Security:**
+
+All endpoints except `GET /health` require the `X-API-KEY` header (`SERVICE_API_KEY`). Swagger UI endpoints (`/swagger-ui.html`, `/v3/api-docs`) are also exempt.
+
+| Header | Value |
+|---|---|
+| `X-API-KEY` | Value of `SERVICE_API_KEY` env var |
+
+- **Exempt endpoints:** `GET /health`, `/swagger-ui/**`, `/v3/api-docs/**` — no key required.
+- Missing or wrong key returns `401 Unauthorized` with JSON body `{"status":401,"message":"Missing or invalid API key","timestamp":"<ISO-8601>"}`.
+
+**Example — calling Order & Pickup Service directly (bypassing Gateway):**
+
+```bash
+curl http://localhost:8083/orders \
+  -H "X-API-KEY: washflow-order-pickup-dev-key-2026"
+```
 
 ## React Client
 
@@ -142,6 +188,29 @@ curl http://localhost:8082/services \
 | `PUT` | `/services/{id}` | Update an existing laundry service item (partial update) | `X-API-KEY` |
 | `DELETE` | `/services/{id}` | Delete a laundry service item by ID | `X-API-KEY` |
 
+### Order & Pickup Service Endpoints (Port 8083)
+
+| Method | Endpoint | Description | Auth Required |
+|---|---|---|---|
+| `GET` | `/health` | Health check endpoint returning service status | None (Public) |
+| `POST` | `/orders` | Create a new laundry order (status defaults to `ORDER_PLACED`) | `X-API-KEY` |
+| `GET` | `/orders` | Retrieve all laundry orders | `X-API-KEY` |
+| `GET` | `/orders/{id}` | Retrieve details of a specific order by ID | `X-API-KEY` |
+| `PUT` | `/orders/{id}` | Update the lifecycle status of an order | `X-API-KEY` |
+| `DELETE` | `/orders/{id}` | Delete an order by ID | `X-API-KEY` |
+
+#### Order Status Lifecycle
+
+Orders progress through 7 sequential lifecycle stages:
+
+1. `ORDER_PLACED` — Initial state upon order creation.
+2. `PICKUP_SCHEDULED` — Pickup date confirmed and courier assigned.
+3. `PICKED_UP` — Laundry collected from customer address.
+4. `WASHING` — Laundry processing in progress.
+5. `READY_FOR_DELIVERY` — Processing complete, packaged for dispatch.
+6. `OUT_FOR_DELIVERY` — Courier en route to customer.
+7. `DELIVERED` — Order delivered to customer address.
+
 # Swagger UI URLs
 
 Swagger UI is available for each microservice when running locally. The Gateway itself does not expose Swagger — use the individual service URLs below.
@@ -150,7 +219,7 @@ Swagger UI is available for each microservice when running locally. The Gateway 
 |--------------------------|---------------------------------------------|
 | User & Auth Service      | http://localhost:8081/swagger-ui.html        |
 | Laundry Service          | http://localhost:8082/swagger-ui.html        |
-| Order & Pickup Service   | *(to be filled by Order & Pickup Service owner)* |
+| Order & Pickup Service   | http://localhost:8083/swagger-ui.html        |
 
 # API Key Header Format
 
@@ -168,7 +237,7 @@ Each microservice enforces direct request protection using its own unique API ke
 |--------------------------------|---------------------------------|-------------------------------|
 | User & Auth Service            | `USER_AUTH_SERVICE_API_KEY`     | `service.api-key`             |
 | Laundry Service                | `SERVICE_API_KEY`               | `service.api-key`             |
-| Order & Pickup Service         | `ORDER_PICKUP_SERVICE_API_KEY`  | *(to be filled)*              |
+| Order & Pickup Service         | `SERVICE_API_KEY`               | `service.api-key`             |
 
 **Example — testing User & Auth Service directly (bypassing Gateway):**
 
@@ -180,3 +249,7 @@ curl -X POST http://localhost:8081/auth/login \
 ```
 
 > **Note:** The `/auth/login` endpoint (port 8081) is for internal Gateway use only. Client applications should always call `POST /oauth/token` on the Gateway (port 8080), which performs credential verification and returns a signed JWT.
+
+# Known Limitations & Future Improvements
+
+- **Client-Side Order Filtering**: In the React client (`OrdersListPage.jsx`), filtering orders for the current logged-in user is performed client-side (`order.userId === currentUser.id`) after fetching all orders via `GET /orders`. The Order & Pickup Service repository already supports server-side filtering via `findByUserId`, and the controller accepts `GET /orders?userId={id}`. Wiring this through the Gateway is a recommended future improvement to reduce payload size and improve scalability.

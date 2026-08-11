@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
 
 const ServicesPage = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const fetchServices = async () => {
     setLoading(true);
@@ -27,6 +29,10 @@ const ServicesPage = () => {
   useEffect(() => {
     fetchServices();
   }, []);
+
+  const handleSelectService = (service) => {
+    navigate('/orders/new', { state: { service: { id: service.id, name: service.name } } });
+  };
 
   if (loading) {
     return (
@@ -77,6 +83,13 @@ const ServicesPage = () => {
                 <span className="service-badge">
                   ⏱️ {service.estimatedMinutes} mins estimated
                 </span>
+                <button
+                  onClick={() => handleSelectService(service)}
+                  className="btn btn-primary"
+                  style={{ marginTop: '0.75rem', width: '100%' }}
+                >
+                  Order Now →
+                </button>
               </div>
             </div>
           ))}
