@@ -9,19 +9,19 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GatewayConfig {
 
-    @Value("${internal.user-auth-service-url:http://localhost:8081}")
+    @Value("${internal.user-auth-service-url:http://user-auth-service:8081}")
     private String userAuthServiceUrl;
 
     @Value("${internal.user-auth-service-api-key:washflow-user-auth-dev-key-2026}")
     private String userAuthApiKey;
 
-    @Value("${internal.laundry-service-url:http://localhost:8082}")
+    @Value("${internal.laundry-service-url:http://laundry-service:8082}")
     private String laundryServiceUrl;
 
     @Value("${internal.laundry-service-api-key:washflow-laundry-dev-key-2026}")
     private String laundryApiKey;
 
-    @Value("${internal.order-pickup-service-url:http://localhost:8083}")
+    @Value("${internal.order-pickup-service-url:http://order-pickup-service:8083}")
     private String orderPickupServiceUrl;
 
     @Value("${internal.order-pickup-service-api-key:washflow-order-pickup-dev-key-2026}")

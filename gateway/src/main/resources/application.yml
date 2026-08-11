@@ -25,42 +25,44 @@ spring:
             allow-credentials: true
       routes:
         - id: user-auth-service-auth
-          uri: ${USER_AUTH_SERVICE_URL:http://localhost:8081}
+          uri: ${USER_AUTH_SERVICE_URL:http://user-auth-service:8081}
           predicates:
             - Path=/auth/**
           filters:
             - AddRequestHeader=X-API-KEY, ${internal.user-auth-service-api-key:washflow-user-auth-dev-key-2026}
 
         - id: user-auth-service-users
-          uri: ${USER_AUTH_SERVICE_URL:http://localhost:8081}
+          uri: ${USER_AUTH_SERVICE_URL:http://user-auth-service:8081}
           predicates:
             - Path=/users/**
           filters:
             - AddRequestHeader=X-API-KEY, ${internal.user-auth-service-api-key:washflow-user-auth-dev-key-2026}
 
         - id: laundry-service
-          uri: ${LAUNDRY_SERVICE_URL:http://localhost:8082}
+          uri: ${LAUNDRY_SERVICE_URL:http://laundry-service:8082}
           predicates:
             - Path=/services/**
           filters:
             - AddRequestHeader=X-API-KEY, ${internal.laundry-service-api-key:washflow-laundry-dev-key-2026}
 
         - id: order-pickup-service
-          uri: ${ORDER_PICKUP_SERVICE_URL:http://localhost:8083}
+          uri: ${ORDER_PICKUP_SERVICE_URL:http://order-pickup-service:8083}
           predicates:
             - Path=/orders/**
           filters:
-            - AddRequestHeader=X-API-KEY, washflow-order-pickup-dev-key-2026
+            - AddRequestHeader=X-API-KEY, ${internal.order-pickup-service-api-key:washflow-order-pickup-dev-key-2026}
 
 jwt:
   secret: ${JWT_SECRET:washflow-jwt-super-secret-key-2026-washflow-microservices-coursework-dev-secret-key-32bytes}
   expiration-ms: 3600000
 
 internal:
-  user-auth-service-url: ${USER_AUTH_SERVICE_URL:http://localhost:8081}
+  user-auth-service-url: ${USER_AUTH_SERVICE_URL:http://user-auth-service:8081}
   user-auth-service-api-key: ${USER_AUTH_SERVICE_API_KEY:washflow-user-auth-dev-key-2026}
-  laundry-service-url: ${LAUNDRY_SERVICE_URL:http://localhost:8082}
+  laundry-service-url: ${LAUNDRY_SERVICE_URL:http://laundry-service:8082}
   laundry-service-api-key: ${LAUNDRY_SERVICE_API_KEY:washflow-laundry-dev-key-2026}
+  order-pickup-service-url: ${ORDER_PICKUP_SERVICE_URL:http://order-pickup-service:8083}
+  order-pickup-service-api-key: ${ORDER_PICKUP_SERVICE_API_KEY:washflow-order-pickup-dev-key-2026}
 
 management:
   endpoints:

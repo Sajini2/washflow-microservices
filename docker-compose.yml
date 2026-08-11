@@ -2,6 +2,8 @@ services:
   mongodb:
     image: mongo:7.0
     container_name: washflow-mongodb
+    networks:
+      - washflow-network
     volumes:
       - mongodb_data:/data/db
     healthcheck:
@@ -18,11 +20,14 @@ services:
     container_name: washflow-user-auth-service
     ports:
       - "8081:8081"
+    networks:
+      - washflow-network
     environment:
-      - MONGODB_URI=${MONGODB_URI}
-      - SPRING_MONGODB_URI=${MONGODB_URI}
-      - SPRING_DATA_MONGODB_URI=${MONGODB_URI}
-      - USER_AUTH_SERVICE_API_KEY=${USER_AUTH_SERVICE_API_KEY}
+      - MONGODB_URI=${MONGODB_URI_USER_AUTH:-mongodb://mongodb:27017/washflow_users}
+      - SPRING_MONGODB_URI=${MONGODB_URI_USER_AUTH:-mongodb://mongodb:27017/washflow_users}
+      - SPRING_DATA_MONGODB_URI=${MONGODB_URI_USER_AUTH:-mongodb://mongodb:27017/washflow_users}
+      - USER_AUTH_SERVICE_API_KEY=${USER_AUTH_SERVICE_API_KEY:-washflow-user-auth-dev-key-2026}
+      - SERVICE_API_KEY=${SERVICE_API_KEY:-washflow-shared-dev-key-2026}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -40,16 +45,44 @@ services:
     container_name: washflow-laundry-service
     ports:
       - "8082:8082"
+    networks:
+      - washflow-network
     environment:
-      - MONGODB_URI=${MONGODB_URI}
-      - SPRING_MONGODB_URI=${MONGODB_URI}
-      - SPRING_DATA_MONGODB_URI=${MONGODB_URI}
-      - LAUNDRY_SERVICE_API_KEY=${LAUNDRY_SERVICE_API_KEY}
+      - MONGODB_URI=${MONGODB_URI_LAUNDRY:-mongodb://mongodb:27017/washflow_catalog}
+      - SPRING_MONGODB_URI=${MONGODB_URI_LAUNDRY:-mongodb://mongodb:27017/washflow_catalog}
+      - SPRING_DATA_MONGODB_URI=${MONGODB_URI_LAUNDRY:-mongodb://mongodb:27017/washflow_catalog}
+      - LAUNDRY_SERVICE_API_KEY=${LAUNDRY_SERVICE_API_KEY:-washflow-laundry-dev-key-2026}
+      - SERVICE_API_KEY=${SERVICE_API_KEY:-washflow-shared-dev-key-2026}
     depends_on:
       mongodb:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8082/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  order-pickup-service:
+    build:
+      context: ./order-pickup-service
+      dockerfile: Dockerfile
+    container_name: washflow-order-pickup-service
+    ports:
+      - "8083:8083"
+    networks:
+      - washflow-network
+    environment:
+      - MONGODB_URI=${MONGODB_URI_ORDER_PICKUP:-mongodb://mongodb:27017/washflow_orders}
+      - SPRING_MONGODB_URI=${MONGODB_URI_ORDER_PICKUP:-mongodb://mongodb:27017/washflow_orders}
+      - SPRING_DATA_MONGODB_URI=${MONGODB_URI_ORDER_PICKUP:-mongodb://mongodb:27017/washflow_orders}
+      - ORDER_PICKUP_SERVICE_API_KEY=${ORDER_PICKUP_SERVICE_API_KEY:-washflow-order-pickup-dev-key-2026}
+      - SERVICE_API_KEY=${SERVICE_API_KEY:-washflow-shared-dev-key-2026}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8083/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -62,16 +95,22 @@ services:
     container_name: washflow-gateway
     ports:
       - "8080:8080"
+    networks:
+      - washflow-network
     environment:
-      - JWT_SECRET=${JWT_SECRET}
-      - USER_AUTH_SERVICE_API_KEY=${USER_AUTH_SERVICE_API_KEY}
+      - JWT_SECRET=${JWT_SECRET:-washflow-jwt-super-secret-key-2026-washflow-microservices-coursework-dev-secret-key-32bytes}
+      - USER_AUTH_SERVICE_API_KEY=${USER_AUTH_SERVICE_API_KEY:-washflow-user-auth-dev-key-2026}
       - USER_AUTH_SERVICE_URL=http://user-auth-service:8081
-      - LAUNDRY_SERVICE_API_KEY=${LAUNDRY_SERVICE_API_KEY}
+      - LAUNDRY_SERVICE_API_KEY=${LAUNDRY_SERVICE_API_KEY:-washflow-laundry-dev-key-2026}
       - LAUNDRY_SERVICE_URL=http://laundry-service:8082
+      - ORDER_PICKUP_SERVICE_API_KEY=${ORDER_PICKUP_SERVICE_API_KEY:-washflow-order-pickup-dev-key-2026}
+      - ORDER_PICKUP_SERVICE_URL=http://order-pickup-service:8083
     depends_on:
       user-auth-service:
         condition: service_healthy
       laundry-service:
+        condition: service_healthy
+      order-pickup-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
@@ -79,6 +118,23 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: washflow-client
+    ports:
+      - "5173:80"
+    networks:
+      - washflow-network
+    depends_on:
+      gateway:
+        condition: service_healthy
+
+networks:
+  washflow-network:
+    driver: bridge
 
 volumes:
   mongodb_data:
