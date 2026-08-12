@@ -96,9 +96,9 @@ const ServicesPage = () => {
   return (
     <div>
       <div className="page-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>
-          <Sparkles size={16} />
-          <span>Catalog & Care Packages</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>
+          <Sparkles size={16} className="gradient-text" style={{ color: 'var(--accent)' }} />
+          <span className="gradient-text" style={{ color: 'var(--accent)' }}>Catalog & Care Packages</span>
         </div>
         <h1 className="page-title">Browse Laundry & Care Services</h1>
         <p className="page-description">
@@ -107,7 +107,7 @@ const ServicesPage = () => {
       </div>
 
       {/* Search & Category Filter Controls */}
-      <div className="card" style={{ marginBottom: '2rem', padding: '1.25rem' }}>
+      <div className="card" style={{ marginBottom: '2rem', padding: '1.25rem', background: 'var(--surface-glass)', backdropFilter: 'blur(12px)', border: '1px solid var(--glass-border)' }}>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Search Input */}
           <div style={{ position: 'relative', flex: '1', minWidth: '240px' }}>
@@ -122,13 +122,13 @@ const ServicesPage = () => {
           </div>
 
           {/* Category Filter Pills */}
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 className={`btn ${selectedCategory === cat ? 'btn-primary' : 'btn-secondary'}`}
-                style={{ padding: '0.45rem 0.85rem', fontSize: '0.825rem' }}
+                style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', borderRadius: 'var(--radius-full)' }}
               >
                 {cat}
               </button>
@@ -153,7 +153,7 @@ const ServicesPage = () => {
       {loading && (
         <div className="services-grid">
           {[1, 2, 3, 4, 5, 6].map((n) => (
-            <div key={n} className="service-card" style={{ height: '240px' }}>
+            <div key={n} className="service-card" style={{ padding: '1.5rem' }}>
               <div>
                 <div className="skeleton" style={{ height: '24px', width: '60%', marginBottom: '1rem' }}></div>
                 <div className="skeleton" style={{ height: '16px', width: '100%', marginBottom: '0.5rem' }}></div>
@@ -179,20 +179,20 @@ const ServicesPage = () => {
         </div>
       )}
 
-      {/* Services Grid (3 cols desktop, 1 col mobile) */}
+      {/* Services Grid */}
       {!loading && filteredServices.length > 0 && (
         <div className="services-grid">
           {filteredServices.map((service) => (
             <div key={service.id} className="service-card">
-              <div>
+              <div className="service-card-body">
                 <div className="service-card-header">
                   <div>
-                    <span className="badge badge-accent" style={{ fontSize: '0.7rem', marginBottom: '0.35rem', display: 'inline-block' }}>
+                    <span className="badge badge-accent" style={{ fontSize: '0.68rem', marginBottom: '0.4rem', display: 'inline-block' }}>
                       {service.category || 'Everyday Wash'}
                     </span>
                     <h3 className="service-title">{service.name}</h3>
                   </div>
-                  <span className="service-price" style={{ fontSize: '1.1rem' }}>
+                  <span className="service-price">
                     {formatLKR(service.price)}
                   </span>
                 </div>
@@ -203,16 +203,16 @@ const ServicesPage = () => {
 
               <div className="service-card-footer">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div className="badge badge-accent" style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
+                  <div className="badge" style={{ background: 'rgba(255, 255, 255, 0.03)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
                     <Clock size={12} />
-                    <span>{service.estimatedMinutes || 60} mins estimated</span>
+                    <span>{service.estimatedMinutes || 60} mins</span>
                   </div>
                 </div>
 
                 <button
                   onClick={() => handleSelectService(service)}
                   className="btn btn-primary"
-                  style={{ width: '100%', marginTop: '0.5rem' }}
+                  style={{ width: '100%', marginTop: '0.25rem' }}
                 >
                   <span>Select Plan</span>
                   <ArrowRight size={16} />

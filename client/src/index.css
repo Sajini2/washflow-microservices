@@ -1,22 +1,31 @@
 @import './styles/tokens.css';
 
-/* Global CSS reset */
+/* Global CSS Reset & Defaults */
 *, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html, body, #root {
   width: 100%;
   min-height: 100vh;
-  margin: 0;
-  padding: 0;
   background-color: var(--bg);
   color: var(--text-primary);
   font-family: var(--font-body);
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(167, 139, 250, 0.3);
+  color: #fff;
 }
 
 :focus-visible {
@@ -24,3 +33,17 @@ html, body, #root {
   outline-offset: 2px;
 }
 
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}

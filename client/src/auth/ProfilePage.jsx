@@ -177,36 +177,28 @@ const ProfilePage = () => {
         <p className="page-description">Customize your identity, profile banner, avatar, and view community reviews.</p>
       </div>
 
-      {/* Modern Profile Header Card with Cover and Avatar */}
-      <div 
-        className="card" 
-        style={{ 
-          padding: 0, 
-          overflow: 'hidden', 
-          marginBottom: '2rem', 
-          border: '1px solid var(--border)', 
-          background: 'var(--surface)' 
-        }}
-      >
-        {/* Cover Photo Container */}
-        <div style={{ position: 'relative', height: '220px', background: '#1c1c1c' }}>
-          <img 
-            src={coverPic} 
-            alt="Profile Cover" 
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+      {/* Modern Profile Hero Card */}
+      <div className="profile-hero">
+        {/* Gradient Mesh Banner */}
+        <div className="profile-hero-banner">
+          <img
+            src={coverPic}
+            alt="Profile Cover"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5, mixBlendMode: 'luminosity' }}
           />
-          <button 
+          <button
             onClick={() => setShowImagePicker('cover')}
-            className="btn btn-secondary" 
-            style={{ 
-              position: 'absolute', 
-              top: '1rem', 
-              right: '1rem', 
-              padding: '0.4rem 0.75rem', 
-              fontSize: '0.8rem', 
-              background: 'rgba(10, 10, 10, 0.7)', 
-              borderColor: 'rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(4px)'
+            className="btn btn-secondary"
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              right: '1rem',
+              padding: '0.35rem 0.7rem',
+              fontSize: '0.78rem',
+              background: 'rgba(6, 6, 8, 0.6)',
+              backdropFilter: 'blur(8px)',
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              zIndex: 5,
             }}
           >
             <Camera size={14} />
@@ -214,48 +206,21 @@ const ProfilePage = () => {
           </button>
         </div>
 
-        {/* Profile Info Overlay Container */}
-        <div style={{ padding: '0 2rem 2rem 2rem', position: 'relative', marginTop: '-50px' }}>
+        {/* Profile Info Section */}
+        <div className="profile-hero-info">
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem' }}>
             
-            {/* Avatar & User Name */}
+            {/* Avatar & Name */}
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1.5rem', flexWrap: 'wrap' }}>
-              <div style={{ position: 'relative' }}>
-                <div 
-                  style={{ 
-                    width: '110px', 
-                    height: '110px', 
-                    borderRadius: 'var(--radius-full)', 
-                    background: 'var(--surface-raised)', 
-                    border: '4px solid var(--surface)', 
-                    overflow: 'hidden',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
-                  }}
-                >
-                  <img 
-                    src={profilePic} 
-                    alt="User Avatar" 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                  />
+              <div className="profile-avatar-wrapper">
+                <div className="profile-avatar-ring">
+                  <div className="profile-avatar-inner">
+                    <img src={profilePic} alt="User Avatar" />
+                  </div>
                 </div>
-                <button 
+                <button
                   onClick={() => setShowImagePicker('avatar')}
-                  style={{ 
-                    position: 'absolute', 
-                    bottom: '4px', 
-                    right: '4px', 
-                    width: '32px', 
-                    height: '32px', 
-                    borderRadius: '50%', 
-                    background: 'var(--accent)', 
-                    color: 'var(--bg)', 
-                    border: '3px solid var(--surface)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-                  }}
+                  className="profile-avatar-edit-btn"
                   title="Change Avatar"
                 >
                   <Camera size={14} />
@@ -268,7 +233,7 @@ const ProfilePage = () => {
                     {profileData?.name || user?.name || 'WashFlow Customer'}
                   </h2>
                   <span className="badge badge-accent" style={{ padding: '0.15rem 0.5rem', fontSize: '0.65rem' }}>
-                    Verified Customer
+                    Verified
                   </span>
                 </div>
                 <p style={{ color: 'var(--text-muted)', margin: '0.25rem 0 0 0', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -295,20 +260,31 @@ const ProfilePage = () => {
                 <span>Sign Out</span>
               </button>
             </div>
+          </div>
 
+          {/* Stats Row */}
+          <div className="profile-stats-row">
+            <div className="profile-stat-card">
+              <div className="profile-stat-label">Reviews</div>
+              <div className="profile-stat-value">{userReviews.length}</div>
+            </div>
+            <div className="profile-stat-card">
+              <div className="profile-stat-label">Member Since</div>
+              <div className="profile-stat-value" style={{ fontSize: '0.95rem' }}>{formatDate(profileData?.createdAt)}</div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Preset Custom Image Picker Modal Panel */}
       {showImagePicker && (
-        <div 
-          className="card" 
-          style={{ 
-            marginBottom: '2rem', 
-            background: 'var(--surface-raised)', 
-            border: '1px solid var(--accent)', 
-            boxShadow: 'var(--shadow-glow)' 
+        <div
+          className="card"
+          style={{
+            marginBottom: '2rem',
+            background: 'var(--surface-raised)',
+            border: '1px solid var(--accent)',
+            boxShadow: 'var(--shadow-glow)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
@@ -316,9 +292,9 @@ const ProfilePage = () => {
               <Image size={18} color="var(--accent)" />
               <span>Change {showImagePicker === 'cover' ? 'Cover Banner' : 'Profile Picture'}</span>
             </h3>
-            <button 
-              onClick={() => setShowImagePicker(false)} 
-              className="btn btn-secondary" 
+            <button
+              onClick={() => setShowImagePicker(false)}
+              className="btn btn-secondary"
               style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
             >
               Close
@@ -328,39 +304,39 @@ const ProfilePage = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
             {showImagePicker === 'cover' ? (
               PRESET_COVERS.map((url, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   onClick={() => selectCover(url)}
-                  style={{ 
-                    height: '90px', 
-                    borderRadius: 'var(--radius-md)', 
-                    overflow: 'hidden', 
-                    cursor: 'pointer', 
+                  style={{
+                    height: '90px',
+                    borderRadius: 'var(--radius-md)',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
                     border: coverPic === url ? '2px solid var(--accent)' : '1px solid var(--border)',
-                    transition: 'all var(--transition-fast)'
+                    transition: 'all var(--transition-fast)',
                   }}
                 >
-                  <img src={url} alt={`Cover ${i+1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={url} alt={`Cover ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
               ))
             ) : (
               PRESET_AVATARS.map((url, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   onClick={() => selectAvatar(url)}
-                  style={{ 
-                    height: '90px', 
-                    borderRadius: 'var(--radius-md)', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    cursor: 'pointer', 
+                  style={{
+                    height: '90px',
+                    borderRadius: 'var(--radius-md)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
                     background: 'var(--surface)',
                     border: profilePic === url ? '2px solid var(--accent)' : '1px solid var(--border)',
-                    padding: '0.5rem'
+                    padding: '0.5rem',
                   }}
                 >
-                  <img src={url} alt={`Avatar ${i+1}`} style={{ width: '60px', height: '60px', borderRadius: '50%' }} />
+                  <img src={url} alt={`Avatar ${i + 1}`} style={{ width: '60px', height: '60px', borderRadius: '50%' }} />
                 </div>
               ))
             )}
@@ -371,13 +347,13 @@ const ProfilePage = () => {
               Or enter custom image URL:
             </label>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <input 
-                id="custom-url-input" 
-                type="text" 
-                placeholder="https://example.com/image.jpg" 
-                style={{ flex: 1 }} 
+              <input
+                id="custom-url-input"
+                type="text"
+                placeholder="https://example.com/image.jpg"
+                style={{ flex: 1 }}
               />
-              <button 
+              <button
                 onClick={() => {
                   const input = document.getElementById('custom-url-input');
                   handleCustomUrl(showImagePicker, input?.value);
