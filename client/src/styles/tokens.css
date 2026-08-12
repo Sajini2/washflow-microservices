@@ -1,17 +1,17 @@
 :root {
-  /* Color Palette — True Black Modern Palette */
-  --bg: #0A0A0A;            /* true near-black base */
-  --surface: #141414;       /* cards, navbar background */
-  --surface-raised: #1C1C1C; /* hover states, elevated panels */
-  --border: rgba(255, 255, 255, 0.10);
-  --accent: #4FD1C5;        /* clean aqua-teal — primary actions, links, focus rings */
-  --accent-dim: #2E7D6B;    /* pressed states, secondary buttons */
-  --warning: #F5A623;       /* amber — in-progress order stages */
-  --success: #6EE7B7;       /* mint — delivered, completed, positive states */
-  --danger: #FF6F61;        /* soft coral — errors */
-  --text-primary: #F2F2F2;
-  --text-muted: #9A9A9A;
-  --text-faint: #616161;
+  /* Color Palette — Ultra Dark Premium True Black Palette */
+  --bg: #000000;            /* Pitch Black Base */
+  --surface: #0A0A0A;       /* Dark Cards and Navbar Background */
+  --surface-raised: #141414; /* Elevated Panels, Input Boxes, and Hover States */
+  --border: rgba(255, 255, 255, 0.08);
+  --accent: #4FD1C5;        /* Aqua-Teal Highlight */
+  --accent-dim: #2E7D6B;    /* Dimmed Accent */
+  --warning: #F5A623;       /* Amber Warning */
+  --success: #6EE7B7;       /* Mint Success */
+  --danger: #FF6F61;        /* Soft Coral Danger */
+  --text-primary: #F2F2F2;  /* Clean White Text */
+  --text-muted: #9A9A9A;    /* Muted Grey Text */
+  --text-faint: #555555;    /* Faint Border/Placeholder Text */
 
   /* Typography */
   --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -26,8 +26,8 @@
   --radius-full: 9999px;
 
   /* Elevation Shadows */
-  --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 16px rgba(79, 209, 197, 0.25);
+  --shadow-subtle: 0 4px 30px rgba(0, 0, 0, 0.85);
+  --shadow-glow: 0 0 16px rgba(79, 209, 197, 0.2);
 
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
