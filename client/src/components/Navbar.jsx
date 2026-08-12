@@ -29,12 +29,12 @@ const Navbar = () => {
         {/* Left: WashFlow Brand Logo */}
         <NavLink to="/services" className="navbar-logo" onClick={() => setMobileMenuOpen(false)}>
           <div className="logo-icon-box">
-            <Droplets size={22} color="var(--accent)" />
+            <Droplets size={20} color="#060608" />
           </div>
           <span className="logo-wordmark">WashFlow</span>
         </NavLink>
 
-        {/* Center / Left-Inline Nav Links (Desktop) */}
+        {/* Center: Desktop Nav Links */}
         <nav className="desktop-nav-links">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -48,14 +48,14 @@ const Navbar = () => {
                 to={item.path}
                 className={`top-nav-link ${isActive ? 'active' : ''}`}
               >
-                <Icon size={18} />
+                <Icon size={17} />
                 <span>{item.label}</span>
               </NavLink>
             );
           })}
         </nav>
 
-        {/* Right: Logged-in User Profile & Logout */}
+        {/* Right: User Profile & Logout */}
         <div className="navbar-right-user">
           <div className="user-profile-badge">
             <div className="user-avatar-circle">
@@ -68,7 +68,7 @@ const Navbar = () => {
             <LogOut size={18} />
           </button>
 
-          {/* Mobile Hamburger Toggle Button (<768px) */}
+          {/* Mobile Hamburger */}
           <button
             className="mobile-hamburger-btn"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -79,7 +79,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Slide-down Panel (<768px) */}
+      {/* Mobile Slide-down Panel */}
       {mobileMenuOpen && (
         <div className="mobile-nav-panel">
           <nav className="mobile-panel-links">
