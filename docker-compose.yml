@@ -26,8 +26,8 @@ services:
       - MONGODB_URI=${MONGODB_URI_USER_AUTH:-mongodb://mongodb:27017/washflow_users}
       - SPRING_MONGODB_URI=${MONGODB_URI_USER_AUTH:-mongodb://mongodb:27017/washflow_users}
       - SPRING_DATA_MONGODB_URI=${MONGODB_URI_USER_AUTH:-mongodb://mongodb:27017/washflow_users}
+      - SERVICE_API_KEY=${USER_AUTH_SERVICE_API_KEY:-washflow-user-auth-dev-key-2026}
       - USER_AUTH_SERVICE_API_KEY=${USER_AUTH_SERVICE_API_KEY:-washflow-user-auth-dev-key-2026}
-      - SERVICE_API_KEY=${SERVICE_API_KEY:-washflow-shared-dev-key-2026}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -51,8 +51,8 @@ services:
       - MONGODB_URI=${MONGODB_URI_LAUNDRY:-mongodb://mongodb:27017/washflow_catalog}
       - SPRING_MONGODB_URI=${MONGODB_URI_LAUNDRY:-mongodb://mongodb:27017/washflow_catalog}
       - SPRING_DATA_MONGODB_URI=${MONGODB_URI_LAUNDRY:-mongodb://mongodb:27017/washflow_catalog}
+      - SERVICE_API_KEY=${LAUNDRY_SERVICE_API_KEY:-washflow-laundry-dev-key-2026}
       - LAUNDRY_SERVICE_API_KEY=${LAUNDRY_SERVICE_API_KEY:-washflow-laundry-dev-key-2026}
-      - SERVICE_API_KEY=${SERVICE_API_KEY:-washflow-shared-dev-key-2026}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -76,8 +76,8 @@ services:
       - MONGODB_URI=${MONGODB_URI_ORDER_PICKUP:-mongodb://mongodb:27017/washflow_orders}
       - SPRING_MONGODB_URI=${MONGODB_URI_ORDER_PICKUP:-mongodb://mongodb:27017/washflow_orders}
       - SPRING_DATA_MONGODB_URI=${MONGODB_URI_ORDER_PICKUP:-mongodb://mongodb:27017/washflow_orders}
+      - SERVICE_API_KEY=${ORDER_PICKUP_SERVICE_API_KEY:-washflow-order-pickup-dev-key-2026}
       - ORDER_PICKUP_SERVICE_API_KEY=${ORDER_PICKUP_SERVICE_API_KEY:-washflow-order-pickup-dev-key-2026}
-      - SERVICE_API_KEY=${SERVICE_API_KEY:-washflow-shared-dev-key-2026}
     depends_on:
       mongodb:
         condition: service_healthy
