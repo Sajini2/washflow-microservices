@@ -1,12 +1,25 @@
 # 🌊 WashFlow — Microservices Laundry Platform
 
-WashFlow is a modern, enterprise-grade Service-Oriented (SOC) laundry pickup, delivery, and catalog platform. The system is designed as a set of autonomous microservices coordinated through an API Gateway, backed by a MongoDB Atlas cluster, and paired with a high-fidelity glassmorphic React client.
+![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![React](https://img.shields.io/badge/React-18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Docker](https://img.shields.io/badge/Docker-Container-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![MongoDB Atlas](https://img.shields.io/badge/MongoDB_Atlas-Cloud-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-V5-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+
+---
+
+## 📝 Introduction
+
+**WashFlow** is an enterprise-grade Service-Oriented Computing (SOC) laundry pickup, delivery, and catalog management platform. Built to demonstrate microservices architecture patterns, the system decouples laundry catalog management, registration/authentication, and order lifecycles into autonomous services.
+
+All microservices communicate internally within a private Docker virtual network, secure service-to-service endpoints with API Keys, coordinate requests through a centralized API Gateway with rate limiting, and persist transactional data to MongoDB Atlas. A high-fidelity, true-black glassmorphic React interface provides the front-end user experience.
 
 ---
 
 ## 🏛️ System Architecture
 
-Clients communicate only with the API Gateway. The Gateway handles JWT validation, routing, and internal request signing before forwarding requests to the downstream services inside the private Docker bridge network.
+Clients communicate exclusively with the API Gateway. The Gateway performs JWT validation, rate limiting, and routes requests to the corresponding downstream microservice inside the private Docker network.
 
 ```mermaid
 graph TD
@@ -39,24 +52,40 @@ graph TD
 
 ---
 
+## 🔍 Detailed Component Breakdown
+
+### 1. API Gateway (`:8080`)
+The entry point of all client traffic.
+- **Routing Rules**: Evaluates matching path predicates (e.g. `/auth/**`, `/services/**`) and forwards them internally to microservices.
+- **JWT Verification**: Validates incoming `Authorization: Bearer <JWT>` tokens using `JwtAuthenticationFilter.java` and rejects requests missing proper claims.
+- **IP Rate Limiter**: Limits requests using `RateLimitFilter.java` to a maximum of 500 requests per minute per client IP address.
+
+### 2. User & Auth Service (`:8081`)
+Manages identities and logins.
+- **BCrypt Hashing**: Hashes passwords using BCrypt on signup.
+- **Profile Management**: Exposes user read/update CRUD operations.
+
+### 3. Laundry Service (`:8082`)
+Maintains the available laundry options and catalog items.
+- **Service Schemas**: Stores service item details: `name`, `description`, `price` (in LKR), and `estimatedMinutes`.
+- **API Key Security**: Exposes direct endpoints only to clients presenting `X-API-KEY: washflow-laundry-dev-key-2026`.
+
+### 4. Order & Pickup Service (`:8083`)
+Manages scheduled orders and delivery lifecycles.
+- **Service Verification**: Validates the selected service ID before scheduling.
+- **7-Stage Lifecycle**: Traces statuses through:
+  `ORDER_PLACED` ➔ `PICKUP_SCHEDULED` ➔ `PICKED_UP` ➔ `WASHING` ➔ `READY_FOR_DELIVERY` ➔ `OUT_FOR_DELIVERY` ➔ `DELIVERED`.
+- **API Key Security**: Exposes direct endpoints only to clients presenting `X-API-KEY: washflow-order-pickup-dev-key-2026`.
+
 ## ⚙️ Environment Setup
 
 1. Copy the template file to create your active environment file:
    ```bash
    cp .env.example .env
    ```
-2. Open the `.env` file and populate it with your credentials:
-   ```env
-   # --- MongoDB Atlas URI ---
-   MONGODB_URI_USER_AUTH=mongodb+srv://buddhika:tTafUEkZ84qyRK85@cluster0.ysbgvyo.mongodb.net/washflow_users?appName=Cluster0
-   MONGODB_URI_LAUNDRY=mongodb+srv://buddhika:tTafUEkZ84qyRK85@cluster0.ysbgvyo.mongodb.net/washflow_catalog?appName=Cluster0
-   MONGODB_URI_ORDER_PICKUP=mongodb+srv://buddhika:tTafUEkZ84qyRK85@cluster0.ysbgvyo.mongodb.net/washflow_orders?appName=Cluster0
+2. Open the `.env` file and populate it with your MongoDB Atlas connection URIs and JWT security secrets.
 
-   # --- Gateway Security Keys ---
-   JWT_SECRET=washflow-jwt-super-secret-key-2026-washflow-microservices-coursework-dev-secret-key-32bytes
-   ```
-
-*Note: The `.env` file contains sensitive cloud credentials and is pre-configured to be ignored by `.gitignore` so that it is never committed.*
+*Note: The `.env` file contains sensitive local credentials and is configured in `.gitignore` to prevent committing it to source control.*
 
 ---
 
@@ -117,6 +146,30 @@ For step-by-step copy-paste testing instructions, reference the [test-manual.ps1
 
 ---
 
+## 🔗 API Endpoint Reference
+
+### 1. User & Auth Endpoints (Port 8081 / Gateway 8080)
+- `POST /auth/register` (Public) - Register customer account.
+- `POST /oauth/token` (Public) - Acquire JWT access token.
+- `GET /users/{id}` (JWT Required) - Fetch profile.
+- `PUT /users/{id}` (JWT Required) - Update profile details.
+
+### 2. Laundry Service Endpoints (Port 8082)
+- `GET /services` (API Key Required) - Fetch all services.
+- `POST /services` (API Key Required) - Create new service.
+- `GET /services/{id}` (API Key Required) - Fetch single service.
+- `PUT /services/{id}` (API Key Required) - Edit service details.
+- `DELETE /services/{id}` (API Key Required) - Remove service.
+
+### 3. Order Service Endpoints (Port 8083)
+- `POST /orders` (API Key Required) - Place order.
+- `GET /orders` (API Key Required) - List all orders.
+- `GET /orders/{id}` (API Key Required) - Fetch single order details.
+- `PUT /orders/{id}` (API Key Required) - Update status lifecycle stage.
+- `DELETE /orders/{id}` (API Key Required) - Delete order.
+
+---
+
 ## 💻 React Web Application Client
 
 The React application runs at [http://localhost:5173](http://localhost:5173). 
@@ -125,3 +178,4 @@ The React application runs at [http://localhost:5173](http://localhost:5173).
 - **Ultra-Dark True Black Theme**: Clean and sleek user interface (`#000000` base, `#0A0A0A` surfaces) with high-contrast glowing aqua-teal highlights.
 - **Top Horizontal Navbar**: Fixed full-width navigation containing interactive menu items, inline active states, user avatar initials display, and responsive collapsible drawers.
 - **Modern User Profile Section**: Allows users to dynamically configure their cover banners and profile picture avatars (persisted in `localStorage` per user account).
+- **Animated Auth Screen Panels**: Beautiful glassmorphic Login and Register cards layered on slow-moving floating water-bubble backdrops.
