@@ -22,6 +22,9 @@ services:
       - "8081:8081"
     networks:
       - washflow-network
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     environment:
       - MONGODB_URI=${MONGODB_URI_USER_AUTH:-mongodb://mongodb:27017/washflow_users}
       - SPRING_MONGODB_URI=${MONGODB_URI_USER_AUTH:-mongodb://mongodb:27017/washflow_users}
@@ -47,6 +50,9 @@ services:
       - "8082:8082"
     networks:
       - washflow-network
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     environment:
       - MONGODB_URI=${MONGODB_URI_LAUNDRY:-mongodb://mongodb:27017/washflow_catalog}
       - SPRING_MONGODB_URI=${MONGODB_URI_LAUNDRY:-mongodb://mongodb:27017/washflow_catalog}
@@ -72,6 +78,9 @@ services:
       - "8083:8083"
     networks:
       - washflow-network
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     environment:
       - MONGODB_URI=${MONGODB_URI_ORDER_PICKUP:-mongodb://mongodb:27017/washflow_orders}
       - SPRING_MONGODB_URI=${MONGODB_URI_ORDER_PICKUP:-mongodb://mongodb:27017/washflow_orders}
