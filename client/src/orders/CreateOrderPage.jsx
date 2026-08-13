@@ -40,8 +40,42 @@ const CreateOrderPage = () => {
   });
   const [pickupTime, setPickupTime] = useState('09:00'); // New field with local state
 
-  // Payment Method card selection (New field)
+  // Payment Method card selection
   const [paymentMethod, setPaymentMethod] = useState('COD');
+
+  // Credit Card detail fields
+  const [cardDetails, setCardDetails] = useState({
+    number: '',
+    name: '',
+    expiry: '',
+    cvv: '',
+  });
+
+  // Card details formatting handlers
+  const handleCardNumberChange = (e) => {
+    const value = e.target.value.replace(/\D/g, ''); // digits only
+    const matches = value.match(/.{1,4}/g);
+    const formatted = matches ? matches.join(' ') : '';
+    setCardDetails((prev) => ({ ...prev, number: formatted.slice(0, 19) }));
+    if (errors.cardNumber) setErrors((prev) => ({ ...prev, cardNumber: '' }));
+  };
+
+  const handleExpiryChange = (e) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 2) {
+      value = `${value.slice(0, 2)}/${value.slice(2, 4)}`;
+    }
+    setCardDetails((prev) => ({ ...prev, expiry: value.slice(0, 5) }));
+    if (errors.cardExpiry) setErrors((prev) => ({ ...prev, cardExpiry: '' }));
+  };
+
+  const getCardBrand = (number) => {
+    const clean = number.replace(/\s/g, '');
+    if (clean.startsWith('4')) return 'VISA';
+    if (clean.startsWith('5')) return 'MASTERCARD';
+    if (clean.startsWith('3')) return 'AMEX';
+    return 'CREDIT CARD';
+  };
 
   // Delivery fields (New fields)
   const [deliveryDate, setDeliveryDate] = useState(() => {
@@ -90,6 +124,23 @@ const CreateOrderPage = () => {
       newErrors.deliveryDate = 'Delivery date must be after the pickup date.';
     }
 
+    // Card validation
+    if (paymentMethod === 'CARD') {
+      const cleanNum = cardDetails.number.replace(/\s/g, '');
+      if (cleanNum.length !== 16) {
+        newErrors.cardNumber = 'Card number must be 16 digits.';
+      }
+      if (!cardDetails.name.trim()) {
+        newErrors.cardName = 'Cardholder name is required.';
+      }
+      if (!/^(0[1-9]|1[0-2])\/?([0-9]{2})$/.test(cardDetails.expiry)) {
+        newErrors.cardExpiry = 'Expiry date must be MM/YY.';
+      }
+      if (cardDetails.cvv.length < 3 || cardDetails.cvv.length > 4) {
+        newErrors.cardCvv = 'CVV must be 3 or 4 digits.';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -111,8 +162,6 @@ const CreateOrderPage = () => {
 
     try {
       // Submits existing payload shape to POST /orders via Gateway
-      // New v2 local state fields (pickupTime, paymentMethod, deliveryDate, deliverySlot, deliveryNotes)
-      // are retained for v2 client state and logging
       const response = await axiosClient.post('/orders', {
         serviceId,
         serviceName,
@@ -135,13 +184,24 @@ const CreateOrderPage = () => {
     }
   };
 
+  const isCardFormValid = useMemo(() => {
+    if (paymentMethod !== 'CARD') return true;
+    return (
+      cardDetails.number.replace(/\s/g, '').length === 16 &&
+      cardDetails.name.trim() &&
+      /^(0[1-9]|1[0-2])\/?([0-9]{2})$/.test(cardDetails.expiry) &&
+      (cardDetails.cvv.length === 3 || cardDetails.cvv.length === 4)
+    );
+  }, [paymentMethod, cardDetails]);
+
   const isFormValid =
     weightKg &&
     parseFloat(weightKg) > 0 &&
     address.trim() &&
     pickupDate &&
     deliveryDate &&
-    isDeliveryDateValid;
+    isDeliveryDateValid &&
+    isCardFormValid;
 
   return (
     <div>
@@ -280,6 +340,164 @@ const CreateOrderPage = () => {
                 );
               })}
             </div>
+
+            {/* Credit Card Input Sub-form & Live Mockup */}
+            {paymentMethod === 'CARD' && (
+              <div style={{ marginTop: '1.75rem', borderTop: '1px solid var(--border)', paddingTop: '1.75rem' }}>
+                
+                {/* Visual Card Mockup */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.75rem' }}>
+                  <div 
+                    style={{
+                      width: '100%',
+                      maxWidth: '340px',
+                      height: '190px',
+                      borderRadius: '16px',
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%)',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      boxShadow: 'var(--shadow-subtle)',
+                      padding: '1.25rem',
+                      position: 'relative',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      color: 'var(--text-primary)',
+                      backdropFilter: 'blur(10px)',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    {/* Glowing effect inside card */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '-40%',
+                      right: '-40%',
+                      width: '180px',
+                      height: '180px',
+                      background: 'rgba(167, 139, 250, 0.15)',
+                      filter: 'blur(35px)',
+                      borderRadius: '50%',
+                      pointerEvents: 'none',
+                      zIndex: 0
+                    }}></div>
+
+                    {/* Chip & Brand Logo */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', zIndex: 1 }}>
+                      <div 
+                        style={{ 
+                          width: '38px', 
+                          height: '28px', 
+                          borderRadius: '6px', 
+                          background: 'linear-gradient(135deg, #F6E05E 0%, #D69E2E 100%)',
+                          border: '1px solid rgba(0,0,0,0.1)'
+                        }}
+                      ></div>
+                      <div style={{ fontWeight: 'bold', fontSize: '0.95rem', fontStyle: 'italic', letterSpacing: '1px', color: 'var(--accent)' }}>
+                        {getCardBrand(cardDetails.number)}
+                      </div>
+                    </div>
+
+                    {/* Card Number */}
+                    <div 
+                      className="font-mono"
+                      style={{ 
+                        fontSize: '1.25rem', 
+                        letterSpacing: '2px', 
+                        textAlign: 'center', 
+                        margin: '1.25rem 0',
+                        zIndex: 1,
+                        color: 'var(--text-primary)'
+                      }}
+                    >
+                      {cardDetails.number || '•••• •••• •••• ••••'}
+                    </div>
+
+                    {/* Holder & Expiry */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', zIndex: 1 }}>
+                      <div>
+                        <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '2px', letterSpacing: '0.5px' }}>Cardholder</div>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '170px' }}>
+                          {cardDetails.name || 'CARDHOLDER NAME'}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '2px', letterSpacing: '0.5px' }}>Expires</div>
+                        <div className="font-mono" style={{ fontSize: '0.85rem', fontWeight: 600 }}>
+                          {cardDetails.expiry || 'MM/YY'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Form Fields */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div className="form-group">
+                    <label htmlFor="card-number">Card Number</label>
+                    <input 
+                      id="card-number"
+                      type="text"
+                      maxLength={19}
+                      placeholder="4111 2222 3333 4444"
+                      value={cardDetails.number}
+                      onChange={handleCardNumberChange}
+                      className={errors.cardNumber ? 'input-error' : ''}
+                    />
+                    {errors.cardNumber && <span className="field-error">{errors.cardNumber}</span>}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="card-name">Cardholder Name Label</label>
+                    <input 
+                      id="card-name"
+                      type="text"
+                      placeholder="Sajini Perera"
+                      value={cardDetails.name}
+                      onChange={(e) => {
+                        setCardDetails({ ...cardDetails, name: e.target.value });
+                        if (errors.cardName) setErrors((prev) => ({ ...prev, cardName: '' }));
+                      }}
+                      className={errors.cardName ? 'input-error' : ''}
+                    />
+                    {errors.cardName && <span className="field-error">{errors.cardName}</span>}
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                    <div className="form-group">
+                      <label htmlFor="card-expiry">Expiry Date</label>
+                      <input 
+                        id="card-expiry"
+                        type="text"
+                        maxLength={5}
+                        placeholder="MM/YY"
+                        value={cardDetails.expiry}
+                        onChange={handleExpiryChange}
+                        className={errors.cardExpiry ? 'input-error' : ''}
+                      />
+                      {errors.cardExpiry && <span className="field-error">{errors.cardExpiry}</span>}
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="card-cvv">CVV</label>
+                      <input 
+                        id="card-cvv"
+                        type="password"
+                        maxLength={4}
+                        placeholder="•••"
+                        value={cardDetails.cvv}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '');
+                          setCardDetails({ ...cardDetails, cvv: val });
+                          if (errors.cardCvv) setErrors((prev) => ({ ...prev, cardCvv: '' }));
+                        }}
+                        className={errors.cardCvv ? 'input-error' : ''}
+                      />
+                      {errors.cardCvv && <span className="field-error">{errors.cardCvv}</span>}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            )}
           </div>
 
           {/* Section 3: Delivery Details */}

@@ -29,7 +29,7 @@ const Navbar = () => {
         {/* Left: WashFlow Brand Logo */}
         <NavLink to="/services" className="navbar-logo" onClick={() => setMobileMenuOpen(false)}>
           <div className="logo-icon-box">
-            <Droplets size={20} color="#060608" />
+            <Droplets size={20} color="#ffffff" />
           </div>
           <span className="logo-wordmark">WashFlow</span>
         </NavLink>
