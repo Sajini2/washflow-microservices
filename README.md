@@ -17,12 +17,12 @@ All client authentication is handled via the API Gateway — microservices are n
 
 # Team Members & Ownership
 
-| Student ID       | Role                    | Owned Components                                  |
-|------------------|-------------------------|---------------------------------------------------|
-| ITBIN-2313-0043  | Member / Gateway Lead   | User & Authentication Service + API Gateway       |
-| ITBIN-2313-0064  | Member                  | Laundry Service                                   |
-| ITBIN-2313-0016  | Member                  | Order & Pickup Service                            |
-| *(teammate)*     | *(to be filled)*        | Client Application                                |
+| Student ID       | Role                    | Owned Components                                  | Key Responsibilities |
+|------------------|-------------------------|---------------------------------------------------|----------------------|
+| ITBIN-2313-0043  | Member / Gateway Lead   | User & Authentication Service + API Gateway       | Implementing Spring Cloud Gateway routing, JWT-based central authentication flow, user registration, and login logic. |
+| ITBIN-2313-0064  | Member                  | Laundry Service                                   | Managing laundry service catalog (types, pricing, processing times), CRUD operations, and enforcing service-to-service API key security. |
+| ITBIN-2313-0016  | Member                  | Order & Pickup Service                            | Handling order placement, tracking order lifecycles (7 stages), pickup/delivery scheduling, and managing the orders database. |
+| *(teammate)*     | *(to be filled)*        | Client Application                                | Developing the React frontend, integrating with the Gateway for authentication, and building user interfaces for services and orders. |
 
 # Branching Strategy
 
